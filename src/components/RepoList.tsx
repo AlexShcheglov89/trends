@@ -1,70 +1,47 @@
-import React, { useState, useEffect } from "react";
-import axios from "axios";
-import { Container, Typography } from "@mui/material";
-import RepoItem from "./RepoItem";
-import moment from "moment";
+import React from "react";
+import { Container, Typography, styled } from "@mui/material";
+import RepoItem, { RepoItemProps } from "./RepoItem";
 import Loading from "./Loading";
 
-export interface Repo {
-  id: number;
-  name: string;
-  html_url: string;
-  description: string;
-  owner: {
-    avatar_url: string;
-  };
+interface RepoListProps {
+  repos: RepoItemProps[];
+  starredRepos: RepoItemProps[];
+  onStarToggle: (id: string) => void;
+  loading: boolean;
+  error: string | null;
 }
 
-const DATE_LAST_WEEK = moment().subtract(1, "week").format("YYYY-MM-DD");
+const StyledRepoList = styled(Container)({
+  marginTop: "20px",
+});
 
-const RepoList: React.FC = () => {
-  const [repos, setRepos] = useState<Repo[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    const fetchRepos = async () => {
-      try {
-        const response = await axios.get<{ items: Repo[] }>(
-          `https://api.github.com/search/repositories?q=created:>${DATE_LAST_WEEK}&sort=stars&order=desc`
-        );
-        setRepos(response.data.items);
-      } catch (error) {
-        console.error("Error while fetching repositories:", error);
-        setError("Error while fetching repositories");
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchRepos();
-  }, []);
-
+const RepoList: React.FC<RepoListProps> = ({repos, starredRepos, onStarToggle, error, loading}) => {
   return (
-    <Container maxWidth="lg">
+    <StyledRepoList>
       <Typography variant="h4" align="center" gutterBottom>
         Most Popular GitHub Repositories
       </Typography>
       {loading && !error ? (
         <Loading />
       ) : error ? (
-        <Typography variant="body1">
-          {error}
-        </Typography>
-      ) : (
         <div>
-          {repos.map((repo) => (
-            <RepoItem
-              key={repo.id}
-              name={repo.name}
-              html_url={repo.html_url}
-              description={repo.description}
-              avatar_url={repo.owner.avatar_url}
-            />
-          ))}
+          <Typography variant="body1">{error}</Typography>
         </div>
+      ) : (
+        repos.map((repo) => (
+          <RepoItem
+            key={repo.id}
+            name={repo.name}
+            html_url={repo.html_url}
+            description={repo.description}
+            isStarred={starredRepos.findIndex(starred => starred.id === repo.id) >= 0}
+            owner={repo.owner}
+            onStarToggle={onStarToggle}
+            id={repo.id}
+          />
+        ))
       )}
-    </Container>
+    </StyledRepoList>
   );
 };
 

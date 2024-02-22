@@ -1,18 +1,18 @@
-import React from "react";
-import { CircularProgress, styled } from "@mui/material";
+import React from 'react';
+import { CircularProgress, styled } from '@mui/material';
 
-const Loader = styled("div")({
-  display: "flex",
-  justifyContent: "center",
-  alignItems: "center",
-  minHeight: "200px",
+const StyledLoader = styled('div')({
+  display: 'flex',
+  justifyContent: 'center',
+  alignItems: 'center',
+  minHeight: '250px',
 });
 
 const Loading: React.FC = () => {
   return (
-    <Loader>
+    <StyledLoader>
       <CircularProgress />
-    </Loader>
+    </StyledLoader>
   );
 };
 
